@@ -1,24 +1,24 @@
 # Javascript代码及注释规范 2013/6/24 #
 
-----------
 ## 声明 ##
 
 - 变量声明必须加var关键字，严格控制作用域；
 - 使用驼峰式命名变量和函数，如：functionNamesLikeThis, variableNamesLikeThis, ClassNamesLikeThis,namespaceNamesLikeThis；
-- 函数可选参数命名以opt_开头；
-- 全局变量，私有成员变量和方法命名以下划线开头，如：var _this；
+- 私有成员变量和方法命名以下划线开头，如：var _this；
 - 常量定义单词全部大写，以下划线连接，但不要用const关键字来声明，如：SOME_CONSTANTS；
+- 函数参数大于3个时，应以对象形式作为参数集传递；
 - 禁止在代码块中声明函数，错误的范例：if (true) {function foo() {}}；
-- 禁止用new来实例化基本类型，错误的范例：var x = new Boolean(false)；
+- 禁止用new来实例化**基本类型**，错误的范例：var x = new Boolean(false)；
 - 直接定义数组或对象，而不使用new关键字声明，错误的范例：var a = new Array();var o = new Object()；
 - 使用单引号来定义字符串；
-- 文件名必须全部用小写；
+- 文件名必须全部用小写，文件名分隔符用**中划线**连接，版本连接符用**实心点**，合并文件的文件名连接符用**下划线**，如：passport-core.min.js和reset-1.0_utils-1.0.css；
+
 
 ## 分号 ##
 
-一个语句必须用分号结束，下面是错误的范例：
+**函数表达式**（有别于函数声明，如：function x(){}）必须用分号结束，下面是错误的范例，第三行漏掉分号，后面的函数被当作参数传递给myMethod，导致解析错误：
 
-    myMethod = function() {
+    var myMethod = function() {
       return 42;
     }    
     (function() {
@@ -27,11 +27,24 @@
 
 ## 异常 ##
 
-由于无法完美的控制都不出现异常，所以尽量在可能但不确定出现异常的地方用try-catch(e)来抛出异常，这样有利于规模较大的项目中排查错误。如果可以，使用自定义异常抛出错误信息，更有利于错误信息阅读，且更加通用，因为不同浏览器抛出的信息不一样，可能完全无法定位到问题所在位置。
+由于无法完美的控制都不出现异常，所以尽量在可能但不确定出现异常的地方（大量运算，AJAX请求，数组操作或DOM操作等）用try-catch(e)来抛出异常，这样有利于规模较大的项目中排查错误。使用自定义异常抛出错误信息，更有利于错误信息阅读，且更加通用，因为不同浏览器抛出的信息不一样，有时候可能很难定位到问题所在位置，特别是IE下可能遇到的如下报错信息：
+
+	Stack overflow at line: 0
+	或：
+	未知的运行时错误
 
 ## 标准化代码编写 ##
 
-为获取最大化的可移植性和兼容性，代码中尽量同标准中支持的方式来书写代码，例如：使用string.charAt(3)而不是string[3]，虽然浏览器支持但不在规范中，你无法保证你将来会不会遇到兼容其他浏览器的情况，如果这个浏览器完全或部分特性只按规范实现。
+为获取最大化的可移植性和兼容性，代码中应使用标准中支持的方式来书写代码，虽然浏览器支持某些语法但不在规范中，你无法保证你将来不会遇到兼容其他浏览器的情况，如果这个浏览器完全或部分特性只按规范实现。
+
+	//错误的范例
+	var char = 'hello world'[3];
+	var myForm = document.myForm;
+
+	//正确的写法
+	var char = 'hello world'.charAt(3)
+	var myForm = document.forms[0];或者var myForm = document.getElementsByTagName('form')[0];
+
 
 ## 面向对象编程 ##
 
@@ -43,19 +56,29 @@
 
 - 慎用eval，仅用于反序列化数据，禁止对用户输入数据进行eval；
 - 审查用户输入，如需要从URL获取参数信息之类的操作；
-- 慎用可回调的iframe跨域调用；
+- 禁用可回调的iframe跨域调用；
+- 警惕jquery xss，禁止这样的写法：$(window.location.hash)；
 
 ## 作用域相关 ##
 
 - 不使用with关键字，容易造成作用域混乱；
 - this仅用于类成员函数或对象中；
 - 通用全局函数，特别是通用组件代码应将业务逻辑放入闭包中，并通过“命名空间”将其引入；
+- 若函数中使用到全局变量，则访问全局变量时应使用window来引入，如：
+
+	
+    var somevar = 10；  
+    function getvar(){  
+    	var num = window.somevar;  
+    	//...  
+    }  
+
 
 ## 杂项 ##
 
-- 多行字符串书写不要用\加换行的方式，应使用+运算连接字符串；
-- 不使用关联数组，而用JSON代替；
-- 避免使用IE条件注释；
+- 多行字符串书写不要用\加换行的方式，应使用+运算连接字符串，防止压缩代码后出错；
+- 禁止使用IE条件注释@cc_on；
+
 
 ## 格式化代码 ##
 
@@ -66,7 +89,7 @@
 	  // ...
 	} else {
 	  // ...
-	};
+	}
 
 	// 数组和对象书写
 	var arr = [1, 2, 3];  // [之后，]之前没有空格
@@ -110,7 +133,7 @@
 
 ## 类型转换 ##
 
-对于代码中需要进行逻辑判断的变量，建议进行强制类型转换或使用===进行判断。
+对于代码中需要进行==逻辑判断的变量，建议进行强制类型转换或使用===代替。
 
 下列值在布尔表达式中结果为false：
 
@@ -125,7 +148,7 @@
 - [] //空数组
 - {} //空对象
 
-还有一些难以区分的表达式：
+还有一些难以区分的表达式，以下表达式结果全为true：
 
 	Boolean('0') == true
 	'0' != true
@@ -154,12 +177,12 @@
 
 文档注释遵循YUIDoc规范（[http://yui.github.io/yuidoc/syntax/](http://yui.github.io/yuidoc/syntax/)），所有的文件、类、方法和属性都应该用合适的标记和类型进行注释。
 
-- YUIDoc要求文档中至少要有一个Class定义；
-- YUIDoc中注释块必须至少以/**（两个星号）开头；
-- 方法、参数和返回值等需要有简单的说明；
+- YUIDoc要求文档中至少要有一个class和constructor标记来定义类和构造函数；
+- YUIDoc中注释块必须以/**（至少两个星号）开头；
+- 方法、参数和返回值等必须有注释说明；
 - 单行注释使用//；
 - 对于代码中特殊用途的变量、存在临界值、函数中使用的hack、使用了某种算法或思路等需要进行注释描述；
-
+- 建议加入开发者个人信息及最后修改时间注释，虽然这些信息不会被YUIDoc解析显示；
 
 下面给出代码注释实例作为参考，更多标记和类型定义请参考YUIDoc官方文档。
 
@@ -168,6 +191,10 @@
 	
 	@class UELib
 	@constructor
+
+	@author hiwanz <princeb4d@gmail.com>
+	@modified someone
+	@date 2013-06-25
 	**/
 	function UELib = function(){};
 	
@@ -189,3 +216,9 @@
 ## 代码发布 ##
 
 待定
+
+## 参考文档 ##
+
+- [http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml](http://google-styleguide.googlecode.com/svn/trunk/javascriptguide.xml)
+
+- [http://www.w3.org/TR/DOM-Level-2-HTML/html.html](http://www.w3.org/TR/DOM-Level-2-HTML/html.html)
