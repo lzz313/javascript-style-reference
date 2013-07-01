@@ -1,4 +1,4 @@
-# Javascript代码及注释规范 2013/6/24 #
+# Javascript代码及注释规范 2013/7/1 #
 
 ## 声明 ##
 
@@ -70,7 +70,7 @@
 	    function getvar(){  
 	    	var num = window.somevar + 1;  
 	    	//...  
-			return num；
+			return num;
 	    }  
 
 ## 杂项 ##
