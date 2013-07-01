@@ -65,14 +65,13 @@
 - this仅用于类成员函数或对象中；
 - 通用全局函数，特别是通用组件代码应将业务逻辑放入闭包中，并通过“命名空间”将其引入；
 - 若函数中使用到全局变量，则访问全局变量时应使用window来引入，如：
-
 	
-    var somevar = 10；  
-    function getvar(){  
-    	var num = window.somevar;  
-    	//...  
-    }  
-
+	    var somevar = 10；  
+	    function getvar(){  
+	    	var num = window.somevar + 1;  
+	    	//...  
+			return num；
+	    }  
 
 ## 杂项 ##
 
